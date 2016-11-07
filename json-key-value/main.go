@@ -57,6 +57,11 @@ func PrimaryHandler(w http.ResponseWriter, r *http.Request, c *travel.Context) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
+		if origin := r.Header.Get("Origin"); origin != "" {
+                        w.Header().Set("Access-Control-Allow-Origin", "*")
+                }
+                w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+                w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding")
 		w.Write(b)
 	}
 
@@ -125,7 +130,15 @@ func PrimaryHandler(w http.ResponseWriter, r *http.Request, c *travel.Context) {
 		http.Error(w, "Error deleting value", http.StatusInternalServerError)
 		return
 	default:
-		w.Header().Set("Accepts", "GET,PUT,DELETE")
+		w.Header().Set("Accepts", "OPTIONS,GET,PUT,DELETE")
+                if origin := r.Header.Get("Origin"); origin != "" {
+                        w.Header().Set("Access-Control-Allow-Origin", "*")
+                }
+                w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+                w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding")
+                if r.Method == "OPTIONS" {
+                        return
+                }
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
 }
